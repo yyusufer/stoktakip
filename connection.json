@@ -1,0 +1,8 @@
+{
+  "HostType": "localhost",
+  "HostIp": null,
+  "Port": "3306",
+  "Username": "stokuser",
+  "Password": "123456",
+  "DatabaseName": "stoktakipdb"
+}

@@ -1,0 +1,31 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Satışlar";
+}
+
+<h2>Satışlar</h2>
+<a href="/Sale/Create" class="btn btn-primary mb-3">Yeni Satış</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ürün</th>
+            <th>Personel</th>
+            <th>Adet</th>
+            <th>Fiyat</th>
+            <th>Tarih</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var sale in Model)
+        {
+            <tr>
+                <td>@sale.ProductName</td>
+                <td>@sale.PersonnelName</td>
+                <td>@sale.Quantity</td>
+                <td>@sale.Price ₺</td>
+                <td>@sale.Time.ToString("dd.MM.yyyy HH:mm")</td>
+            </tr>
+        }
+    </tbody>
+</table>

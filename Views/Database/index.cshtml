@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "Veritabanı Ayarları";
+}
+
+<h2>Veritabanı Ayarları</h2>
+
+<form id="connectionForm">
+    <div class="mb-3">
+        <label for="serverType" class="form-label">Sunucu Türü</label>
+        <select class="form-select" id="serverType" name="serverType">
+            <option value="localhost">localhost</option>
+            <option value="ip">IP</option>
+        </select>
+    </div>
+
+    <div class="mb-3" id="ipField" style="display:none;">
+        <label for="ip" class="form-label">IP Adresi</label>
+        <input type="text" class="form-control" id="ip" name="ip" />
+    </div>
+
+    <div class="mb-3">
+        <label for="port" class="form-label">Port</label>
+        <input type="text" class="form-control" id="port" name="port" value="3306" />
+    </div>
+
+    <div class="mb-3">
+        <label for="username" class="form-label">Kullanıcı Adı</label>
+        <input type="text" class="form-control" id="username" name="username" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Şifre</label>
+        <input type="password" class="form-control" id="password" name="password" />
+    </div>
+
+    <button type="button" class="btn btn-primary" onclick="testConnection()">Bağlantıyı Test Et</button>
+    <button type="button" class="btn btn-success" onclick="saveConnection()">Kaydet</button>
+</form>
+
+<div id="result" class="mt-3"></div>
+
+<div id="savedInfo" class="mt-4" style="display: none;">
+    <h5>Kayıtlı Veritabanı Bilgisi</h5>
+    <p id="savedHost"></p>
+    <p id="savedUsername"></p>
+    <button class="btn btn-danger" onclick="confirmDelete()">Veritabanı Bilgilerini Sil</button>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById("serverType").addEventListener("change", function () {
+        const isIp = this.value === "ip";
+        document.getElementById("ipField").style.display = isIp ? "block" : "none";
+        if (!isIp) document.getElementById("ip").value = "";
+    });
+
+    async function testConnection() {
+        const form = document.getElementById("connectionForm");
+        const formData = new FormData(form);
+
+        const response = await fetch("/Database/TestConnection", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        document.getElementById("result").innerText = result.message;
+    }
+
+    async function saveConnection() {
+        const form = document.getElementById("connectionForm");
+        const formData = new FormData(form);
+
+        const response = await fetch("/Database/SaveConnection", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        document.getElementById("result").innerText = result.message;
+        loadSavedInfo();
+    }
+
+    async function loadSavedInfo() {
+        const response = await fetch("/Database/GetSavedConnectionInfo");
+        const data = await response.json();
+
+        if (data.exists) {
+            document.getElementById("savedInfo").style.display = "block";
+            document.getElementById("savedHost").innerText = "Sunucu: " + data.host;
+            document.getElementById("savedUsername").innerText = "Kullanıcı: " + data.username;
+        } else {
+            document.getElementById("savedInfo").style.display = "none";
+        }
+    }
+
+    async function confirmDelete() {
+        if (!confirm("Veritabanı bilgileri silinecek. Emin misiniz?")) return;
+
+        const response = await fetch("/Database/DeleteConnectionFile", {
+            method: "POST"
+        });
+
+        const result = await response.json();
+        alert(result.message);
+        loadSavedInfo();
+    }
+
+    document.addEventListener("DOMContentLoaded", loadSavedInfo);
+</script>
+}
